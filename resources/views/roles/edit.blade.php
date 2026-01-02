@@ -1,0 +1,39 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Seguridad</p>
+        <h1>Editar rol</h1>
+    </div>
+</div>
+<div class="card">
+    <form class="form" method="POST" action="{{ route('roles.update', $role) }}">
+        @csrf
+        @method('PUT')
+        <label class="form__field">
+            <span>Nombre</span>
+            <input type="text" class="input" name="name" value="{{ old('name', $role->name) }}" required>
+            @error('name')<span class="form__error">{{ $message }}</span>@enderror
+        </label>
+        <label class="form__field">
+            <span>Descripción</span>
+            <input type="text" class="input" name="description" value="{{ old('description', $role->description) }}">
+        </label>
+        <div class="form__field">
+            <span>Permisos</span>
+            <div class="chip-group">
+                @foreach($permissions as $permission)
+                    <label class="chip">
+                        <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" {{ in_array($permission->id, $rolePermissions) ? 'checked' : '' }}> {{ $permission->name }}
+                    </label>
+                @endforeach
+            </div>
+        </div>
+        <div class="form__actions">
+            <a class="btn btn--ghost" href="{{ route('roles.index') }}">Cancelar</a>
+            <button class="btn btn--primary" type="submit">Actualizar</button>
+        </div>
+    </form>
+</div>
+@endsection
