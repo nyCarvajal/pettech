@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -35,5 +36,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:manage permissions')->group(function () {
         Route::resource('permissions', PermissionController::class);
+    });
+
+    Route::middleware('permission:manage clients')->group(function () {
+        Route::resource('clients', ClientController::class);
     });
 });

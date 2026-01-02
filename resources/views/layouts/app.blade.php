@@ -15,6 +15,7 @@
                 <a href="{{ route('users.index') }}" class="sidebar__link">Usuarios</a>
                 <a href="{{ route('roles.index') }}" class="sidebar__link">Roles</a>
                 <a href="{{ route('permissions.index') }}" class="sidebar__link">Permisos</a>
+                <a href="{{ route('clients.index') }}" class="sidebar__link">Clientes</a>
             </nav>
         </aside>
         <div class="app-shell__content">
