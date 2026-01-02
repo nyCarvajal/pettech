@@ -35,8 +35,28 @@
                 <button class="tab" type="button" data-tab-target="purchases">Compras</button>
             </div>
             <div class="tabs__panels">
-                <div class="tab-panel is-active" id="pets" data-tab-panel>
-                    <p class="muted">Sin mascotas registradas todavía.</p>
+                <div class="tab-panel is-active stack" id="pets" data-tab-panel>
+                    <div class="form__actions">
+                        <a class="btn btn--primary" href="{{ route('clients.pets.create', $client) }}">Agregar mascota</a>
+                    </div>
+                    @forelse($client->pets as $pet)
+                        <div class="card card--inline">
+                            <div class="stack">
+                                <div class="badge {{ $pet->active ? '' : 'badge--ghost' }}">{{ $pet->active ? 'Activa' : 'Inactiva' }}</div>
+                                <strong>{{ $pet->name }}</strong>
+                                <p class="muted">{{ $pet->species ?: 'Especie no registrada' }} · {{ $pet->breed ?: 'Raza no registrada' }}</p>
+                                @if($pet->grooming_preferences)
+                                    <p class="muted">Preferencias de grooming: {{ $pet->grooming_preferences }}</p>
+                                @endif
+                            </div>
+                            <div class="table__actions">
+                                <a class="btn btn--ghost" href="{{ route('pets.show', $pet) }}">Detalle</a>
+                                <a class="btn btn--ghost" href="{{ route('pets.edit', $pet) }}">Editar</a>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="muted">Sin mascotas registradas todavía.</p>
+                    @endforelse
                 </div>
                 <div class="tab-panel" id="appointments" data-tab-panel>
                     <p class="muted">No hay citas previas para este cliente.</p>
