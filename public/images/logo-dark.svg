@@ -1,0 +1,32 @@
+<svg width="1024" height="640" viewBox="0 0 1024 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0A0C1A"/>
+        <stop offset="100%" stop-color="#05060F"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#2BAE9F" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="#12535B" stop-opacity="0.28"/>
+    </linearGradient>
+    <linearGradient id="wave2" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0%" stop-color="#2BAE9F" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#1B8D7D" stop-opacity="0.14"/>
+    </linearGradient>
+</defs>
+<rect width="1024" height="640" fill="url(#bg)"/>
+<path d="M-80 470C120 410 320 520 512 500C704 480 904 360 1120 400V720H-80V470Z" fill="url(#wave)"/>
+<path d="M-120 520C120 490 350 600 560 590C770 580 1000 460 1180 490V720H-120V520Z" fill="url(#wave2)"/>
+<g transform="translate(262 174)">
+    <path d="M96 0H196C258 0 308 50 308 112C308 174 258 224 196 224H96V0Z" fill="#F9FAFA"/>
+    <path d="M96 0H176C244 0 300 56 300 124C300 192 244 248 176 248H96V0Z" fill="#2BAE9F" opacity="0.85"/>
+    <path d="M96 32H168C214 32 252 70 252 116C252 162 214 200 168 200H96V32Z" fill="#0D1A26" opacity="0.96"/>
+    <circle cx="160" cy="90" r="16" fill="#F9FAFA"/>
+    <circle cx="198" cy="86" r="16" fill="#F9FAFA"/>
+    <circle cx="175" cy="118" r="16" fill="#F9FAFA"/>
+    <circle cx="212" cy="118" r="16" fill="#F9FAFA"/>
+    <path d="M240 134C240 134 224 152 206 152C188 152 176 138 176 138" stroke="#2BAE9F" stroke-width="10" stroke-linecap="round"/>
+    <path d="M96 224C96 224 126 260 176 260C226 260 256 224 256 224" stroke="#2BAE9F" stroke-width="18" stroke-linecap="round"/>
+</g>
+<text x="520" y="310" fill="#F9FAFA" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="120" letter-spacing="1">Pe<tspan fill="#2BAE9F">tech</tspan></text>
+<text x="520" y="370" fill="#9FA0A6" font-family="'Segoe UI', Arial, sans-serif" font-size="28" letter-spacing="2">PET GROOMING SOLUTIONS</text>
+</svg>
