@@ -45,7 +45,7 @@ class Client extends Model
 
     public function appointments(): HasMany
     {
-        return $this->hasMany(Appointment::class);
+        return $this->hasMany(Appointment::class, 'customer_id');
     }
 
     public function invoices(): HasMany

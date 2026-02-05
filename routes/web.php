@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\PermissionController;
@@ -43,4 +44,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('clients', ClientController::class);
         Route::resource('clients.pets', PetController::class)->shallow()->except(['index']);
     });
+
+    Route::resource('appointments', AppointmentController::class)->except(['show']);
+    Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
+    Route::post('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
 });
