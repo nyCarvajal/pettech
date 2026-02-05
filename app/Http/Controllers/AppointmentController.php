@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
 use App\Models\Appointment;
+use App\Models\Clinica;
 use App\Models\Client;
 use App\Models\Pet;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -135,6 +138,20 @@ class AppointmentController extends Controller
 
     private function ensureTenantDatabaseIsReady(): void
     {
-        DB::connection('tenant')->getPdo();
+        $user = Auth::user();
+        abort_unless($user, 403, 'Usuario no autenticado.');
+
+        $clinica = Clinica::resolveForUser($user);
+        $database = $clinica?->db ?? $user->db;
+
+        abort_unless($database, 500, 'No se pudo determinar la base de datos tenant.');
+
+        Config::set('database.connections.tenant.database', $database);
+        DB::purge('tenant');
+        DB::reconnect('tenant');
+        DB::setDefaultConnection('tenant');
+
+        $activeDb = DB::connection('tenant')->selectOne('SELECT DATABASE() AS db_name');
+        abort_unless(($activeDb->db_name ?? null) === $database, 500, 'La conexión tenant no quedó apuntando a la base esperada.');
     }
 }
