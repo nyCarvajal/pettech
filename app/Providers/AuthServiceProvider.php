@@ -2,25 +2,28 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\Appointment;
+use App\Models\InventoryMovement;
+use App\Models\Invoice;
+use App\Policies\AppointmentPolicy;
+use App\Policies\GroomingPolicy;
+use App\Policies\InventoryMovementPolicy;
+use App\Policies\InvoicePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * The model to policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
-     */
     protected $policies = [
-        //
+        Appointment::class => AppointmentPolicy::class,
+        Invoice::class => InvoicePolicy::class,
+        InventoryMovement::class => InventoryMovementPolicy::class,
     ];
 
-    /**
-     * Register any authentication / authorization services.
-     */
     public function boot(): void
     {
-        //
+        $this->registerPolicies();
+
+        Gate::define('grooming.execute', [GroomingPolicy::class, 'execute']);
     }
 }

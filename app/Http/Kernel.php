@@ -58,9 +58,8 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth'      => \Illuminate\Auth\Middleware\Authenticate::class,
         'verified'  => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'role'      => \Spatie\Permission\Middlewares\RoleMiddleware::class,
-        'permission'=> \Spatie\Permission\Middlewares\PermissionMiddleware::class,
-        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+        'role'      => \App\Http\Middleware\RoleMiddleware::class,
+        'permission'=> \App\Http\Middleware\PermissionMiddleware::class,
         'action.permission' => \App\Http\Middleware\EnsureActionPermission::class,
     ];
 
