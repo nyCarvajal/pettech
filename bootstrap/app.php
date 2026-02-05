@@ -1,9 +1,12 @@
 <?php
-use App\Http\Middleware\ConnectTenantDB;
 
-use Illuminate\Foundation\Configuration\Middleware as MiddlewareConfigurator;
+use App\Http\Middleware\ConnectTenantDB;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware as MiddlewareConfigurator;
+use Spatie\Permission\Middlewares\PermissionMiddleware;
+use Spatie\Permission\Middlewares\RoleMiddleware;
+use Spatie\Permission\Middlewares\RoleOrPermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,10 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (MiddlewareConfigurator $middleware) {
-    // Esto añade tu middleware al final del stack global
-	
-		$middleware->append(ConnectTenantDB::class);
-})
+        $middleware->append(ConnectTenantDB::class);
+
+        $middleware->alias([
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
+        ]);
+    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
