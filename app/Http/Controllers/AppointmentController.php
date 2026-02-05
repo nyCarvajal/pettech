@@ -12,7 +12,6 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -21,7 +20,7 @@ class AppointmentController extends Controller
 {
     public function index(Request $request): View
     {
-        $this->ensureTenantDatabaseIsReady();
+        $this->ensureTenantDatabaseIsReady($request);
 
         $date = $request->input('date', now()->toDateString());
         $currentDate = Carbon::parse($date);
@@ -58,9 +57,9 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        $this->ensureTenantDatabaseIsReady();
+        $this->ensureTenantDatabaseIsReady($request);
 
         return view('appointments.create', $this->formData());
     }
@@ -79,9 +78,9 @@ class AppointmentController extends Controller
         return redirect()->route('appointments.index')->with('status', 'Cita creada correctamente.');
     }
 
-    public function edit(Appointment $appointment): View
+    public function edit(Request $request, Appointment $appointment): View
     {
-        $this->ensureTenantDatabaseIsReady();
+        $this->ensureTenantDatabaseIsReady($request);
 
         return view('appointments.edit', array_merge($this->formData(), compact('appointment')));
     }
@@ -136,15 +135,19 @@ class AppointmentController extends Controller
         return 'APT-'.now()->format('Ymd-His').'-'.strtoupper(substr((string) str()->uuid(), 0, 6));
     }
 
-    private function ensureTenantDatabaseIsReady(): void
+    private function ensureTenantDatabaseIsReady(Request $request): void
     {
-        $user = Auth::user();
+        $user = $request->user();
         abort_unless($user, 403, 'Usuario no autenticado.');
 
         $clinica = Clinica::resolveForUser($user);
-        $database = $clinica?->db ?? $user->db;
+        $database = $clinica?->db
+            ?? ($user->db ?? null)
+            ?? data_get($user, 'tenant.tenancy_db_name')
+            ?? data_get($user, 'tenant.database')
+            ?? data_get($user, 'tenant.data.database');
 
-        abort_unless($database, 500, 'No se pudo determinar la base de datos tenant.');
+        abort_unless(is_string($database) && $database !== '', 500, 'No se pudo determinar la base de datos tenant.');
 
         Config::set('database.connections.tenant.database', $database);
         DB::purge('tenant');
