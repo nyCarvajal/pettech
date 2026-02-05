@@ -12,6 +12,8 @@ class Appointment extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $connection = 'tenant';
+
     public const STATUSES = [
         'scheduled',
         'confirmed',
