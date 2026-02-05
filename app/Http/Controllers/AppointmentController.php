@@ -11,12 +11,15 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AppointmentController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->ensureTenantDatabaseIsReady();
+
         $date = $request->input('date', now()->toDateString());
         $currentDate = Carbon::parse($date);
         $startOfWeek = $currentDate->copy()->startOfWeek(Carbon::MONDAY);
@@ -54,6 +57,8 @@ class AppointmentController extends Controller
 
     public function create(): View
     {
+        $this->ensureTenantDatabaseIsReady();
+
         return view('appointments.create', $this->formData());
     }
 
@@ -73,6 +78,8 @@ class AppointmentController extends Controller
 
     public function edit(Appointment $appointment): View
     {
+        $this->ensureTenantDatabaseIsReady();
+
         return view('appointments.edit', array_merge($this->formData(), compact('appointment')));
     }
 
@@ -124,5 +131,10 @@ class AppointmentController extends Controller
     private function generateCode(): string
     {
         return 'APT-'.now()->format('Ymd-His').'-'.strtoupper(substr((string) str()->uuid(), 0, 6));
+    }
+
+    private function ensureTenantDatabaseIsReady(): void
+    {
+        DB::connection('tenant')->getPdo();
     }
 }
