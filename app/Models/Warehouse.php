@@ -12,6 +12,13 @@ class Warehouse extends Model
 
     protected $fillable = ['tenant_id', 'created_by', 'name', 'code', 'location', 'is_main'];
 
-    public function stocks(): HasMany { return $this->hasMany(InventoryStock::class); }
-    public function movements(): HasMany { return $this->hasMany(InventoryMovement::class); }
+    public function stocks(): HasMany
+    {
+        return $this->hasMany(Stock::class);
+    }
+
+    public function movements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
 }
