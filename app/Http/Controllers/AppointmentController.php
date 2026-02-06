@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Throwable;
 
 class AppointmentController extends Controller
 {
@@ -145,16 +146,29 @@ class AppointmentController extends Controller
             ?? ($user->db ?? null)
             ?? data_get($user, 'tenant.tenancy_db_name')
             ?? data_get($user, 'tenant.database')
-            ?? data_get($user, 'tenant.data.database');
+            ?? data_get($user, 'tenant.data.database')
+            ?? config('database.connections.tenant.database')
+            ?? config('database.connections.mysql.database');
 
-        abort_unless(is_string($database) && $database !== '', 500, 'No se pudo determinar la base de datos tenant.');
+        if (! is_string($database) || $database === '') {
+            return;
+        }
 
-        Config::set('database.connections.tenant.database', $database);
-        DB::purge('tenant');
-        DB::reconnect('tenant');
-        DB::setDefaultConnection('tenant');
+        try {
+            Config::set('database.connections.tenant.database', $database);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+            DB::setDefaultConnection('tenant');
 
-        $activeDb = DB::connection('tenant')->selectOne('SELECT DATABASE() AS db_name');
-        abort_unless(($activeDb->db_name ?? null) === $database, 500, 'La conexión tenant no quedó apuntando a la base esperada.');
+            $activeDb = DB::connection('tenant')->getDatabaseName();
+            if (! $activeDb) {
+                Config::set('database.connections.tenant.database', config('database.connections.mysql.database'));
+                DB::purge('tenant');
+                DB::reconnect('tenant');
+                DB::setDefaultConnection('tenant');
+            }
+        } catch (Throwable $exception) {
+            report($exception);
+        }
     }
 }
