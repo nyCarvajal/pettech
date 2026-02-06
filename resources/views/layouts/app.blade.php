@@ -17,6 +17,11 @@
                 <a href="{{ route('permissions.index') }}" class="sidebar__link">Permisos</a>
                 <a href="{{ route('clients.index') }}" class="sidebar__link">Clientes</a>
                 <a href="{{ route('appointments.index') }}" class="sidebar__link">Agenda</a>
+                <a href="{{ route('products.index') }}" class="sidebar__link">Productos</a>
+                <a href="{{ route('categories.index') }}" class="sidebar__link">Categorías</a>
+                <a href="{{ route('warehouses.index') }}" class="sidebar__link">Bodegas</a>
+                <a href="{{ route('stock.movements.create') }}" class="sidebar__link">Movimientos</a>
+                <a href="{{ route('stock.low') }}" class="sidebar__link">Por reponer</a>
             </nav>
         </aside>
         <div class="app-shell__content">

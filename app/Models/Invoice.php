@@ -14,7 +14,7 @@ class Invoice extends Model
 
     protected $fillable = ['tenant_id', 'created_by', 'client_id', 'appointment_id', 'invoice_number', 'invoice_type', 'status', 'issued_at', 'subtotal', 'tax_total', 'discount_total', 'grand_total', 'currency'];
 
-    protected $casts = ['issued_at' => 'datetime'];
+    protected $casts = ['issued_at' => 'datetime', 'inventory_applied_at' => 'datetime'];
 
     public function client(): BelongsTo { return $this->belongsTo(Client::class); }
     public function appointment(): BelongsTo { return $this->belongsTo(Appointment::class); }
