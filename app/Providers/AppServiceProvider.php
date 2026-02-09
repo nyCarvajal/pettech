@@ -2,6 +2,9 @@
 
 // app/Providers/AppServiceProvider.php
 namespace App\Providers;
+
+use App\Models\Invoice;
+use App\Observers\InvoiceObserver;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
 use Illuminate\Routing\Events\RouteMatched;
@@ -20,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+        Invoice::observe(InvoiceObserver::class);
+
         Event::listen(RouteMatched::class, function (RouteMatched $event) {
             if ($user = Auth::user()) {
                 $peluqueria = Clinica::resolveForUser($user);
