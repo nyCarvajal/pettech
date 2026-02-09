@@ -25,12 +25,12 @@ class PosInvoiceController extends Controller
     {
         $tenantId = $this->tenantId();
 
-        $clients = Client::query()
+        $clients = Client::on('tenant')
             ->where('tenant_id', $tenantId)
             ->orderBy('name')
             ->get();
 
-        $pets = Pet::query()
+        $pets = Pet::on('tenant')
             ->where('tenant_id', $tenantId)
             ->orderBy('name')
             ->get();
@@ -70,7 +70,7 @@ class PosInvoiceController extends Controller
         $search = $request->string('search')->toString();
         $tenantId = $this->tenantId();
 
-        $products = Product::query()
+        $products = Product::on('tenant')
             ->where('tenant_id', $tenantId)
             ->when($search, fn ($query) => $query->where('name', 'like', '%' . $search . '%'))
             ->orderBy('name')
@@ -92,7 +92,7 @@ class PosInvoiceController extends Controller
 
         $product = null;
         if ($request->filled('product_id')) {
-            $product = Product::query()->where('tenant_id', $this->tenantId())->findOrFail($request->input('product_id'));
+            $product = Product::on('tenant')->where('tenant_id', $this->tenantId())->findOrFail($request->input('product_id'));
         }
 
         $qty = (float) $request->input('qty');
@@ -166,7 +166,7 @@ class PosInvoiceController extends Controller
         $invoice->save();
 
         if (!$invoice->inventory_applied_at) {
-            $warehouse = Warehouse::query()
+            $warehouse = Warehouse::on('tenant')
                 ->where('tenant_id', $invoice->tenant_id)
                 ->orderByDesc('is_main')
                 ->first();
