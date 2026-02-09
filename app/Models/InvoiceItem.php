@@ -10,7 +10,26 @@ class InvoiceItem extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['tenant_id', 'created_by', 'invoice_id', 'item_type', 'product_id', 'service_id', 'description', 'quantity', 'unit_price', 'tax_rate', 'discount_rate', 'line_total'];
+    protected $fillable = [
+        'tenant_id',
+        'created_by',
+        'invoice_id',
+        'item_type',
+        'product_id',
+        'service_id',
+        'description',
+        'quantity',
+        'qty',
+        'unit_price',
+        'tax_rate',
+        'discount_rate',
+        'line_total',
+        'is_service',
+    ];
+
+    protected $casts = [
+        'is_service' => 'boolean',
+    ];
 
     public function invoice(): BelongsTo { return $this->belongsTo(Invoice::class); }
     public function product(): BelongsTo { return $this->belongsTo(Product::class); }
