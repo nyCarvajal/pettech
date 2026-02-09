@@ -10,6 +10,7 @@ use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -70,4 +71,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stock/alerts/low', [StockMovementController::class, 'lowStock'])->name('stock.low');
     Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
     Route::post('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
+
+    Route::prefix('pos')->name('pos.')->group(function () {
+        Route::get('invoices/create', [PosInvoiceController::class, 'create'])->name('invoices.create');
+        Route::post('invoices', [PosInvoiceController::class, 'store'])->name('invoices.store');
+        Route::get('invoices/{invoice}', [PosInvoiceController::class, 'show'])->name('invoices.show');
+        Route::post('invoices/{invoice}/items', [PosInvoiceController::class, 'addItem'])->name('invoices.items.store');
+        Route::post('invoices/{invoice}/payments', [PosInvoiceController::class, 'storePayment'])->name('invoices.payments.store');
+        Route::post('invoices/{invoice}/issue', [PosInvoiceController::class, 'issue'])->name('invoices.issue');
+        Route::get('invoices/{invoice}/print', [PosInvoiceController::class, 'print'])->name('invoices.print');
+        Route::get('invoices/{invoice}/pdf', [PosInvoiceController::class, 'pdf'])->name('invoices.pdf');
+    });
 });

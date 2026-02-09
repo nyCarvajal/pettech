@@ -18,6 +18,7 @@
                 <a href="{{ route('permissions.index') }}" class="sidebar__link">Permisos</a>
                 <a href="{{ route('clients.index') }}" class="sidebar__link">Clientes</a>
                 <a href="{{ route('appointments.index') }}" class="sidebar__link">Agenda</a>
+                <a href="{{ route('pos.invoices.create') }}" class="sidebar__link">POS</a>
 
                 <p class="eyebrow" style="margin-top:12px;">Inventario</p>
                 <a href="{{ route('products.index') }}" class="sidebar__link">Productos</a>
