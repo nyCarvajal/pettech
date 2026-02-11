@@ -142,15 +142,20 @@ class AppointmentController extends Controller
         abort_unless($user, 403, 'Usuario no autenticado.');
 
         $clinica = Clinica::resolveForUser($user);
-        $database = $clinica?->db
-            ?? ($user->db ?? null)
-            ?? data_get($user, 'tenant.tenancy_db_name')
-            ?? data_get($user, 'tenant.database')
-            ?? data_get($user, 'tenant.data.database')
-            ?? config('database.connections.tenant.database')
-            ?? config('database.connections.mysql.database');
+        $database = collect([
+            $clinica?->db,
+            $user->db ?? null,
+            data_get($user, 'tenant.tenancy_db_name'),
+            data_get($user, 'tenant.database'),
+            data_get($user, 'tenant.data.database'),
+            config('database.connections.tenant.database'),
+            config('database.connections.mysql.database'),
+        ])
+            ->filter(fn ($value) => is_string($value) && trim($value) !== '')
+            ->map(fn (string $value) => trim($value))
+            ->first();
 
-        if (! is_string($database) || $database === '') {
+        if (! is_string($database)) {
             return;
         }
 
