@@ -31,7 +31,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
-        $lowStockCount = \App\Models\Product::query()
+        $lowStockCount = \App\Models\Product::on('tenant')
             ->where('is_service', false)
             ->with('stocks')
             ->get()
