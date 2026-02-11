@@ -13,7 +13,6 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-use App\Models\Clinica;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -34,18 +33,16 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
-        if (blank(config('database.connections.tenant.database')) && ($user = Auth::user())) {
-            $clinica = Clinica::resolveForUser($user);
-            $database = $clinica?->db ?? $user->db;
-
-            abort_unless($database, 403, 'No se pudo determinar la clínica del usuario.');
-
-            config(['database.connections.tenant.database' => $database]);
+        if (blank(DB::connection('tenant')->getDatabaseName()) && ($user = Auth::user()) && filled($user->db)) {
+            config(['database.connections.tenant.database' => $user->db]);
             DB::purge('tenant');
             DB::reconnect('tenant');
         }
 
-        DB::connection('tenant')->getPdo();
+        if (blank(DB::connection('tenant')->getDatabaseName())) {
+            $lowStockCount = 0;
+            return view('dashboard', compact('lowStockCount'));
+        }
 
         $lowStockCount = \App\Models\Product::on('tenant')
             ->where('is_service', false)
