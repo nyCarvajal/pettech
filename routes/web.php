@@ -13,6 +13,8 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('dashboard'));
@@ -31,7 +33,18 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
-        $lowStockCount = \App\Models\Product::query()
+        if (blank(DB::connection('tenant')->getDatabaseName()) && ($user = Auth::user()) && filled($user->db)) {
+            config(['database.connections.tenant.database' => $user->db]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+        }
+
+        if (blank(DB::connection('tenant')->getDatabaseName())) {
+            $lowStockCount = 0;
+            return view('dashboard', compact('lowStockCount'));
+        }
+
+        $lowStockCount = \App\Models\Product::on('tenant')
             ->where('is_service', false)
             ->with('stocks')
             ->get()
