@@ -7,50 +7,77 @@ use App\Models\Product;
 use App\Models\Stock;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with('category')->orderBy('name')->paginate(15);
+        $this->ensureTenantDatabaseLoaded();
+
+        $products = Product::on('tenant')->with('category')->orderBy('name')->paginate(15);
+
         return view('inventory.products.index', compact('products'));
     }
 
     public function create()
     {
-        $categories = Category::orderBy('name')->get();
+        $this->ensureTenantDatabaseLoaded();
+
+        $categories = Category::on('tenant')->orderBy('name')->get();
+
         return view('inventory.products.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
+        $this->ensureTenantDatabaseLoaded();
+
         $data = $this->validateData($request);
-        Product::create($data);
+        Product::on('tenant')->create($data);
+
         return redirect()->route('products.index')->with('status', 'Producto creado.');
     }
 
-    public function edit(Product $product)
+    public function edit(int $product)
     {
-        $categories = Category::orderBy('name')->get();
+        $this->ensureTenantDatabaseLoaded();
+
+        $product = Product::on('tenant')->findOrFail($product);
+        $categories = Category::on('tenant')->orderBy('name')->get();
+
         return view('inventory.products.edit', compact('product', 'categories'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, int $product)
     {
+        $this->ensureTenantDatabaseLoaded();
+
+        $product = Product::on('tenant')->findOrFail($product);
         $data = $this->validateData($request, $product->id);
         $product->update($data);
+
         return redirect()->route('products.index')->with('status', 'Producto actualizado.');
     }
 
-    public function destroy(Product $product)
+    public function destroy(int $product)
     {
+        $this->ensureTenantDatabaseLoaded();
+
+        $product = Product::on('tenant')->findOrFail($product);
         $product->delete();
+
         return redirect()->route('products.index')->with('status', 'Producto eliminado.');
     }
 
-    public function kardex(Product $product)
+    public function kardex(int $product)
     {
-        $movements = StockMovement::with('warehouse')
+        $this->ensureTenantDatabaseLoaded();
+
+        $product = Product::on('tenant')->findOrFail($product);
+
+        $movements = StockMovement::on('tenant')->with('warehouse')
             ->where('product_id', $product->id)
             ->orderBy('created_at')
             ->get();
@@ -64,7 +91,7 @@ class ProductController extends Controller
             }
 
             if ($movement->movement_type === 'adjustment') {
-                $runningBalance = Stock::where('product_id', $movement->product_id)
+                $runningBalance = Stock::on('tenant')->where('product_id', $movement->product_id)
                     ->where('warehouse_id', $movement->warehouse_id)
                     ->value('qty') ?? $runningBalance;
             }
@@ -79,9 +106,9 @@ class ProductController extends Controller
     private function validateData(Request $request, ?int $productId = null): array
     {
         return $request->validate([
-            'sku' => ['required', 'string', 'max:60', 'unique:products,sku,'.($productId ?? 'NULL').',id'],
+            'sku' => ['required', 'string', 'max:60', 'unique:tenant.products,sku,'.($productId ?? 'NULL').',id'],
             'name' => ['required', 'string', 'max:255'],
-            'category_id' => ['nullable', 'exists:categories,id'],
+            'category_id' => ['nullable', 'exists:tenant.categories,id'],
             'unit' => ['required', 'string', 'max:20'],
             'sale_price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['required', 'numeric', 'min:0'],
@@ -90,4 +117,21 @@ class ProductController extends Controller
             'is_service' => ['nullable', 'boolean'],
         ]) + ['is_service' => $request->boolean('is_service')];
     }
+    private function ensureTenantDatabaseLoaded(): void
+    {
+        if (filled(DB::connection('tenant')->getDatabaseName())) {
+            return;
+        }
+
+        $user = Auth::user();
+
+        if ($user && filled($user->db)) {
+            config(['database.connections.tenant.database' => $user->db]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+        }
+
+        abort_if(blank(DB::connection('tenant')->getDatabaseName()), 500, 'No se pudo inicializar la base de datos tenant.');
+    }
+
 }
