@@ -19,6 +19,8 @@ class CategoryController extends Controller
 
     public function create()
     {
+        $this->ensureTenantDatabaseLoaded();
+
         return view('inventory.categories.create');
     }
 
@@ -31,27 +33,33 @@ class CategoryController extends Controller
         return redirect()->route('categories.index')->with('status', 'Categoría creada.');
     }
 
-    public function edit(Category $category)
+    public function edit(int $category)
     {
         $this->ensureTenantDatabaseLoaded();
+
+        $category = Category::on('tenant')->findOrFail($category);
 
         return view('inventory.categories.edit', compact('category'));
     }
 
-    public function update(Request $request, Category $category)
+    public function update(Request $request, int $category)
     {
         $this->ensureTenantDatabaseLoaded();
+
+        $category = Category::on('tenant')->findOrFail($category);
 
         $data = $request->validate(['name' => ['required', 'string', 'max:255', 'unique:tenant.categories,name,'.$category->id]]);
         $category->update($data);
         return redirect()->route('categories.index')->with('status', 'Categoría actualizada.');
     }
 
-    public function destroy(Category $category)
+    public function destroy(int $category)
     {
         $this->ensureTenantDatabaseLoaded();
 
+        $category = Category::on('tenant')->findOrFail($category);
         $category->delete();
+
         return redirect()->route('categories.index')->with('status', 'Categoría eliminada.');
     }
 

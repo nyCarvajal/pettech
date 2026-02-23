@@ -19,6 +19,8 @@ class WarehouseController extends Controller
 
     public function create()
     {
+        $this->ensureTenantDatabaseLoaded();
+
         return view('inventory.warehouses.create');
     }
 
@@ -37,16 +39,20 @@ class WarehouseController extends Controller
         return redirect()->route('warehouses.index')->with('status', 'Bodega creada.');
     }
 
-    public function edit(Warehouse $warehouse)
+    public function edit(int $warehouse)
     {
         $this->ensureTenantDatabaseLoaded();
+
+        $warehouse = Warehouse::on('tenant')->findOrFail($warehouse);
 
         return view('inventory.warehouses.edit', compact('warehouse'));
     }
 
-    public function update(Request $request, Warehouse $warehouse)
+    public function update(Request $request, int $warehouse)
     {
         $this->ensureTenantDatabaseLoaded();
+
+        $warehouse = Warehouse::on('tenant')->findOrFail($warehouse);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -59,11 +65,13 @@ class WarehouseController extends Controller
         return redirect()->route('warehouses.index')->with('status', 'Bodega actualizada.');
     }
 
-    public function destroy(Warehouse $warehouse)
+    public function destroy(int $warehouse)
     {
         $this->ensureTenantDatabaseLoaded();
 
+        $warehouse = Warehouse::on('tenant')->findOrFail($warehouse);
         $warehouse->delete();
+
         return redirect()->route('warehouses.index')->with('status', 'Bodega eliminada.');
     }
 
