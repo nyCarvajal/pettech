@@ -17,12 +17,15 @@ use App\Services\NumberingService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class PosInvoiceController extends Controller
 {
     public function create()
     {
+        $this->ensureTenantDatabaseLoaded();
+
         $tenantId = $this->tenantId();
 
         $clients = Client::on('tenant')
@@ -248,5 +251,22 @@ class PosInvoiceController extends Controller
         if ((int) $invoice->tenant_id !== $this->tenantId()) {
             abort(404);
         }
+    }
+
+    private function ensureTenantDatabaseLoaded(): void
+    {
+        if (filled(DB::connection('tenant')->getDatabaseName())) {
+            return;
+        }
+
+        $user = Auth::user();
+
+        if ($user && filled($user->db)) {
+            config(['database.connections.tenant.database' => $user->db]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+        }
+
+        abort_if(blank(DB::connection('tenant')->getDatabaseName()), 500, 'No se pudo inicializar la base de datos tenant.');
     }
 }

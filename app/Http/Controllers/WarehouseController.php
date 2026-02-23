@@ -4,43 +4,59 @@ namespace App\Http\Controllers;
 
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WarehouseController extends Controller
 {
     public function index()
     {
-        $warehouses = Warehouse::orderBy('name')->paginate(15);
+        $this->ensureTenantDatabaseLoaded();
+
+        $warehouses = Warehouse::on('tenant')->orderBy('name')->paginate(15);
         return view('inventory.warehouses.index', compact('warehouses'));
     }
 
     public function create()
     {
+        $this->ensureTenantDatabaseLoaded();
+
         return view('inventory.warehouses.create');
     }
 
     public function store(Request $request)
     {
+        $this->ensureTenantDatabaseLoaded();
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:40', 'unique:warehouses,code'],
+            'code' => ['required', 'string', 'max:40', 'unique:tenant.warehouses,code'],
             'location' => ['nullable', 'string', 'max:255'],
             'is_main' => ['nullable', 'boolean'],
         ]);
         $data['is_main'] = (bool)($data['is_main'] ?? false);
-        Warehouse::create($data);
+        Warehouse::on('tenant')->create($data);
         return redirect()->route('warehouses.index')->with('status', 'Bodega creada.');
     }
 
-    public function edit(Warehouse $warehouse)
+    public function edit(int $warehouse)
     {
+        $this->ensureTenantDatabaseLoaded();
+
+        $warehouse = Warehouse::on('tenant')->findOrFail($warehouse);
+
         return view('inventory.warehouses.edit', compact('warehouse'));
     }
 
-    public function update(Request $request, Warehouse $warehouse)
+    public function update(Request $request, int $warehouse)
     {
+        $this->ensureTenantDatabaseLoaded();
+
+        $warehouse = Warehouse::on('tenant')->findOrFail($warehouse);
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:40', 'unique:warehouses,code,'.$warehouse->id],
+            'code' => ['required', 'string', 'max:40', 'unique:tenant.warehouses,code,'.$warehouse->id],
             'location' => ['nullable', 'string', 'max:255'],
             'is_main' => ['nullable', 'boolean'],
         ]);
@@ -49,9 +65,30 @@ class WarehouseController extends Controller
         return redirect()->route('warehouses.index')->with('status', 'Bodega actualizada.');
     }
 
-    public function destroy(Warehouse $warehouse)
+    public function destroy(int $warehouse)
     {
+        $this->ensureTenantDatabaseLoaded();
+
+        $warehouse = Warehouse::on('tenant')->findOrFail($warehouse);
         $warehouse->delete();
+
         return redirect()->route('warehouses.index')->with('status', 'Bodega eliminada.');
+    }
+
+    private function ensureTenantDatabaseLoaded(): void
+    {
+        if (filled(DB::connection('tenant')->getDatabaseName())) {
+            return;
+        }
+
+        $user = Auth::user();
+
+        if ($user && filled($user->db)) {
+            config(['database.connections.tenant.database' => $user->db]);
+            DB::purge('tenant');
+            DB::reconnect('tenant');
+        }
+
+        abort_if(blank(DB::connection('tenant')->getDatabaseName()), 500, 'No se pudo inicializar la base de datos tenant.');
     }
 }
