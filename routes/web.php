@@ -54,20 +54,20 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard', compact('lowStockCount'));
     })->name('dashboard');
 
-    Route::middleware('permission:manage users')->group(function () {
+    Route::middleware('role_or_permission:Admin|manage users')->group(function () {
         Route::resource('users', UserController::class);
         Route::patch('users/{user}/toggle', [UserController::class, 'toggleStatus'])->name('users.toggle');
     });
 
-    Route::middleware('permission:manage roles')->group(function () {
+    Route::middleware('role_or_permission:Admin|manage roles')->group(function () {
         Route::resource('roles', RoleController::class);
     });
 
-    Route::middleware('permission:manage permissions')->group(function () {
+    Route::middleware('role_or_permission:Admin|manage permissions')->group(function () {
         Route::resource('permissions', PermissionController::class);
     });
 
-    Route::middleware('permission:manage clients')->group(function () {
+    Route::middleware('role_or_permission:Admin|manage clients')->group(function () {
         Route::resource('clients', ClientController::class);
         Route::resource('clients.pets', PetController::class)->shallow()->except(['index']);
     });
