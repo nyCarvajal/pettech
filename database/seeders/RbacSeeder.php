@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class RbacSeeder extends Seeder
@@ -64,6 +65,16 @@ class RbacSeeder extends Seeder
                 ->all();
 
             $role->permissions()->sync($syncData);
+        }
+
+
+        $bootstrapAdmin = User::query()
+            ->where('tenant_id', $tenantId)
+            ->orderBy('id')
+            ->first();
+
+        if ($bootstrapAdmin && ! $bootstrapAdmin->hasRole('Admin')) {
+            $bootstrapAdmin->assignRole('Admin');
         }
     }
 }
