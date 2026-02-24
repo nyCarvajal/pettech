@@ -72,8 +72,10 @@ class CategoryController extends Controller
 
         $user = Auth::user();
 
-        if ($user && filled($user->db)) {
-            config(['database.connections.tenant.database' => $user->db]);
+        $database = $this->resolveTenantDatabaseName($user);
+
+        if (filled($database)) {
+            config(['database.connections.tenant.database' => $database]);
             DB::purge('tenant');
             DB::reconnect('tenant');
         }
@@ -82,7 +84,7 @@ class CategoryController extends Controller
             Log::error('No se pudo inicializar la base de datos tenant.', [
                 'controller' => static::class,
                 'user_id' => $user?->id,
-                'requested_tenant_db' => $user?->db,
+                'requested_tenant_db' => $database,
                 'configured_tenant_db' => config('database.connections.tenant.database'),
                 'route' => request()->path(),
             ]);
