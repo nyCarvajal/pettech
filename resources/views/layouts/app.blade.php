@@ -12,20 +12,20 @@
             <div class="sidebar__brand">PetTech</div>
             <nav class="sidebar__nav">
                 <p class="eyebrow">Menú principal</p>
-                <a href="{{ route('dashboard') }}" class="sidebar__link">Dashboard</a>
-                <a href="{{ route('users.index') }}" class="sidebar__link">Usuarios</a>
-                <a href="{{ route('roles.index') }}" class="sidebar__link">Roles</a>
-                <a href="{{ route('permissions.index') }}" class="sidebar__link">Permisos</a>
-                <a href="{{ route('clients.index') }}" class="sidebar__link">Clientes</a>
-                <a href="{{ route('appointments.index') }}" class="sidebar__link">Agenda</a>
-                <a href="{{ route('pos.invoices.create') }}" class="sidebar__link">POS</a>
+                <a href="{{ route('dashboard') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🏠</span>Dashboard</a>
+                <a href="{{ route('users.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">👤</span>Usuarios</a>
+                <a href="{{ route('roles.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🧩</span>Roles</a>
+                <a href="{{ route('permissions.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🔐</span>Permisos</a>
+                <a href="{{ route('clients.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🐾</span>Clientes</a>
+                <a href="{{ route('appointments.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🗓️</span>Agenda</a>
+                <a href="{{ route('pos.invoices.create') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">💳</span>POS</a>
 
                 <p class="eyebrow" style="margin-top:12px;">Inventario</p>
-                <a href="{{ route('products.index') }}" class="sidebar__link">Productos</a>
-                <a href="{{ route('categories.index') }}" class="sidebar__link">Categorías</a>
-                <a href="{{ route('warehouses.index') }}" class="sidebar__link">Bodegas</a>
-                <a href="{{ route('stock.movements.create') }}" class="sidebar__link">Movimientos</a>
-                <a href="{{ route('stock.low') }}" class="sidebar__link">Por reponer</a>
+                <a href="{{ route('products.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">📦</span>Productos</a>
+                <a href="{{ route('categories.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🗂️</span>Categorías</a>
+                <a href="{{ route('warehouses.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🏬</span>Bodegas</a>
+                <a href="{{ route('stock.movements.create') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🔄</span>Movimientos</a>
+                <a href="{{ route('stock.low') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">⚠️</span>Por reponer</a>
             </nav>
         </aside>
         <div class="app-shell__content">
