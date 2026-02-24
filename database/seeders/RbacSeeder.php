@@ -13,6 +13,7 @@ class RbacSeeder extends Seeder
         $tenantId = 1;
 
         $permissionsByModule = [
+            'acceso' => ['manage users', 'manage roles', 'manage permissions', 'manage clients'],
             'dashboard' => ['dashboard.admin.view', 'dashboard.groomer.view'],
             'clientes' => ['clientes.view', 'clientes.create', 'clientes.update', 'clientes.delete'],
             'mascotas' => ['mascotas.view', 'mascotas.create', 'mascotas.update', 'mascotas.delete'],
@@ -40,6 +41,7 @@ class RbacSeeder extends Seeder
                 'mascotas.view', 'mascotas.create', 'mascotas.update',
                 'agenda.view', 'agenda.create', 'agenda.update', 'agenda.cancel',
                 'facturacion.view', 'facturacion.create', 'facturacion.dian.view',
+                'manage clients',
             ])->values()->all(),
             'Peluquero' => $permissionIds->only([
                 'dashboard.groomer.view',
