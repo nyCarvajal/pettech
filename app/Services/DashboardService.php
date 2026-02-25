@@ -14,6 +14,32 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
+    public function emptyDashboardData(?string $fromDate = null, ?string $toDate = null): array
+    {
+        [$from, $to] = $this->resolveDateRange($fromDate, $toDate);
+
+        return [
+            'range' => [
+                'from' => $from->toDateString(),
+                'to' => $to->toDateString(),
+            ],
+            'salesSummary' => [
+                'today' => ['total' => 0, 'invoices' => 0, 'avg_ticket' => 0],
+                'week' => ['total' => 0, 'invoices' => 0, 'avg_ticket' => 0],
+                'month' => ['total' => 0, 'invoices' => 0, 'avg_ticket' => 0],
+            ],
+            'topItems' => collect(),
+            'appointmentsByStatus' => collect(),
+            'alerts' => [
+                'low_stock_count' => 0,
+                'low_stock_items' => collect(),
+                'dian_error_count' => 0,
+                'dian_error_items' => collect(),
+            ],
+            'salesChart' => $this->emptySalesChart($to),
+        ];
+    }
+
     public function getDashboardData(?string $fromDate = null, ?string $toDate = null): array
     {
         [$from, $to] = $this->resolveDateRange($fromDate, $toDate);
@@ -56,7 +82,7 @@ class DashboardService
 
     private function aggregateSales(Carbon $from, Carbon $to): array
     {
-        $query = Invoice::query()
+        $query = Invoice::on('tenant')
             ->whereBetween('issued_at', [$from, $to])
             ->whereNotNull('issued_at')
             ->whereNotIn('status', ['draft', 'void', 'cancelled']);
@@ -82,7 +108,7 @@ class DashboardService
 
     private function getTopProductsAndServices(Carbon $from, Carbon $to)
     {
-        $query = DB::table('invoice_items as ii')
+        $query = DB::connection('tenant')->table('invoice_items as ii')
             ->join('invoices as i', 'i.id', '=', 'ii.invoice_id')
             ->leftJoin('products as p', 'p.id', '=', 'ii.product_id')
             ->leftJoin('service_catalog as s', 's.id', '=', 'ii.service_id')
@@ -111,7 +137,7 @@ class DashboardService
 
     private function getAppointmentsByStatusForDay(Carbon $date)
     {
-        $query = Appointment::query();
+        $query = Appointment::on('tenant');
 
         if ($tenantId = $this->tenantId()) {
             $query->where('tenant_id', $tenantId);
@@ -128,7 +154,7 @@ class DashboardService
 
     private function getAlerts(): array
     {
-        $lowStockQuery = InventoryStock::query()
+        $lowStockQuery = InventoryStock::on('tenant')
             ->join('products', 'products.id', '=', 'inventory_stocks.product_id')
             ->whereNull('inventory_stocks.deleted_at')
             ->whereNull('products.deleted_at')
@@ -152,14 +178,14 @@ class DashboardService
 
         $dianStatuses = ['rejected', 'error', 'failed'];
 
-        $dianDocuments = DianDocument::query()
+        $dianDocuments = DianDocument::on('tenant')
             ->when($this->tenantId(), fn ($q, $tenantId) => $q->where('tenant_id', $tenantId))
             ->whereIn('dian_status', $dianStatuses)
             ->latest('updated_at')
             ->limit(10)
             ->get(['invoice_id', 'dian_status', 'updated_at']);
 
-        $electronicInvoices = ElectronicInvoice::query()
+        $electronicInvoices = ElectronicInvoice::on('tenant')
             ->when($this->tenantId(), fn ($q, $tenantId) => $q->where('tenant_id', $tenantId))
             ->whereIn('dian_status', $dianStatuses)
             ->latest('updated_at')
@@ -189,7 +215,7 @@ class DashboardService
         $start = $toDate->copy()->subDays(13)->startOfDay();
         $end = $toDate->copy()->endOfDay();
 
-        $query = Invoice::query()
+        $query = Invoice::on('tenant')
             ->whereBetween('issued_at', [$start, $end])
             ->whereNotNull('issued_at')
             ->whereNotIn('status', ['draft', 'void', 'cancelled']);
@@ -210,6 +236,21 @@ class DashboardService
             $series[] = [
                 'date' => $key,
                 'total' => (float) ($rows[$key] ?? 0),
+            ];
+        }
+
+        return $series;
+    }
+
+    private function emptySalesChart(Carbon $toDate): array
+    {
+        $start = $toDate->copy()->subDays(13)->startOfDay();
+        $series = [];
+
+        foreach (CarbonPeriod::create($start, '1 day', $toDate->copy()->startOfDay()) as $day) {
+            $series[] = [
+                'date' => $day->toDateString(),
+                'total' => 0,
             ];
         }
 

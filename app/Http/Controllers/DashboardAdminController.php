@@ -21,6 +21,15 @@ class DashboardAdminController extends Controller
             DB::reconnect('tenant');
         }
 
+        if (blank(DB::connection('tenant')->getDatabaseName())) {
+            $data = $this->dashboardService->emptyDashboardData(
+                $request->string('from')->toString(),
+                $request->string('to')->toString(),
+            );
+
+            return view('admin.dashboard', $data);
+        }
+
         $data = $this->dashboardService->getDashboardData(
             $request->string('from')->toString(),
             $request->string('to')->toString(),
