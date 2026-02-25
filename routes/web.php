@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ElectronicInvoiceController;
 use App\Http\Controllers\TenantDianConfigController;
@@ -15,8 +16,6 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('dashboard'));
@@ -34,27 +33,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        if (blank(DB::connection('tenant')->getDatabaseName()) && ($user = Auth::user()) && filled($user->db)) {
-            config(['database.connections.tenant.database' => $user->db]);
-            DB::purge('tenant');
-            DB::reconnect('tenant');
-        }
-
-        if (blank(DB::connection('tenant')->getDatabaseName())) {
-            $lowStockCount = 0;
-            return view('dashboard', compact('lowStockCount'));
-        }
-
-        $lowStockCount = \App\Models\Product::on('tenant')
-            ->where('is_service', false)
-            ->with('stocks')
-            ->get()
-            ->filter(fn (\App\Models\Product $product) => $product->stocks->sum('qty') <= $product->min_stock)
-            ->count();
-
-        return view('dashboard', compact('lowStockCount'));
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard');
 
     Route::middleware('role_or_permission:Admin|manage users')->group(function () {
         Route::resource('users', UserController::class);
