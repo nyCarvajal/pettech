@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->hasMany(self::class, 'created_by');
     }
 
+    public function groomingSessions(): HasMany
+    {
+        return $this->hasMany(GroomingSession::class, 'groomer_user_id');
+    }
+
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_user', 'model_id', 'role_id')
