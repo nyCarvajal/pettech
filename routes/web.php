@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ElectronicInvoiceController;
+use App\Http\Controllers\Groomer\GroomerDashboardController;
 use App\Http\Controllers\TenantDianConfigController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockMovementController;
@@ -54,6 +55,12 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::resource('appointments', AppointmentController::class)->except(['show']);
+
+    Route::prefix('groomer/dashboard')->name('groomer.dashboard.')->group(function () {
+        Route::get('/', [GroomerDashboardController::class, 'index'])->name('index');
+        Route::patch('sessions/{groomingSession}/stage/advance', [GroomerDashboardController::class, 'advance'])->name('stage.advance');
+        Route::patch('sessions/{groomingSession}/stage/rollback', [GroomerDashboardController::class, 'rollback'])->name('stage.rollback');
+    });
 
     Route::resource('categories', CategoryController::class)->except(['show']);
     Route::resource('warehouses', WarehouseController::class)->except(['show']);
