@@ -43,4 +43,5 @@ class Invoice extends BaseModel
     public function payments(): HasMany { return $this->hasMany(InvoicePayment::class); }
     public function posPayments(): HasMany { return $this->hasMany(Payment::class); }
     public function dianDocument(): HasOne { return $this->hasOne(DianDocument::class); }
+    public function electronicInvoice(): HasOne { return $this->hasOne(ElectronicInvoice::class); }
 }
