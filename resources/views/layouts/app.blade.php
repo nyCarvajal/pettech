@@ -19,6 +19,8 @@
                 <a href="{{ route('clients.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🐾</span>Clientes</a>
                 <a href="{{ route('appointments.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🗓️</span>Agenda</a>
                 <a href="{{ route('pos.invoices.create') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">💳</span>POS</a>
+                <a href="{{ route('dian.invoices.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🧾</span>DIAN estados</a>
+                <a href="{{ route('dian.config.edit') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">⚙️</span>DIAN configuración</a>
 
                 <p class="eyebrow" style="margin-top:12px;">Inventario</p>
                 <a href="{{ route('products.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">📦</span>Productos</a>

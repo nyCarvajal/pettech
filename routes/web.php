@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ElectronicInvoiceController;
+use App\Http\Controllers\TenantDianConfigController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\WarehouseController;
@@ -84,6 +86,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stock/alerts/low', [StockMovementController::class, 'lowStock'])->name('stock.low');
     Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
     Route::post('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
+
+
+    Route::prefix('dian')->name('dian.')->group(function () {
+        Route::get('invoices', [ElectronicInvoiceController::class, 'index'])->name('invoices.index');
+        Route::get('invoices/{invoice}', [ElectronicInvoiceController::class, 'show'])->name('invoices.show');
+        Route::post('invoices/{invoice}/retry', [ElectronicInvoiceController::class, 'retry'])->name('invoices.retry');
+
+        Route::get('config', [TenantDianConfigController::class, 'edit'])->name('config.edit');
+        Route::put('config', [TenantDianConfigController::class, 'update'])->name('config.update');
+    });
 
     Route::prefix('pos')->name('pos.')->group(function () {
         Route::get('invoices/create', [PosInvoiceController::class, 'create'])->name('invoices.create');

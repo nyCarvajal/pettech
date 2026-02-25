@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Pos\AddInvoiceItemRequest;
 use App\Http\Requests\Pos\StoreInvoiceRequest;
 use App\Http\Requests\Pos\StorePaymentRequest;
+use App\Jobs\ProcessPendingElectronicInvoiceJob;
 use App\Models\Client;
+use App\Models\ElectronicInvoice;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Pet;
@@ -203,7 +205,19 @@ class PosInvoiceController extends Controller
             $invoice->save();
         }
 
-        return redirect()->route('pos.invoices.show', $invoice)->with('status', 'Factura emitida.');
+        $electronicInvoice = ElectronicInvoice::query()->firstOrCreate(
+            [
+                'invoice_id' => $invoice->id,
+                'tenant_id' => $invoice->tenant_id,
+            ],
+            [
+                'dian_status' => 'pending',
+            ]
+        );
+
+        ProcessPendingElectronicInvoiceJob::dispatch($electronicInvoice->id)->onQueue('dian');
+
+        return redirect()->route('pos.invoices.show', $invoice)->with('status', 'Factura emitida y envío DIAN en cola.');
     }
 
     public function print(Invoice $invoice)
