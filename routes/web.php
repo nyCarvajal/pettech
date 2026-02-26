@@ -6,6 +6,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ElectronicInvoiceController;
 use App\Http\Controllers\Groomer\GroomerDashboardController;
 use App\Http\Controllers\TenantDianConfigController;
