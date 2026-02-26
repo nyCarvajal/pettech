@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Appointment extends Model
@@ -26,16 +25,15 @@ class Appointment extends Model
 
     public const SERVICE_TYPES = [
         'grooming',
-        'consulta',
-        'venta',
-        'otro',
+        'consult',
+        'sale',
+        'other',
     ];
 
     protected $fillable = [
         'tenant_id',
         'code',
         'customer_id',
-        'client_id',
         'pet_id',
         'service_type',
         'start_at',
@@ -71,18 +69,19 @@ class Appointment extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function groomingSession(): HasOne
+    public function scopeForTenant(Builder $query, ?int $tenantId): Builder
     {
-        return $this->hasOne(GroomingSession::class);
+        return $tenantId ? $query->where('tenant_id', $tenantId) : $query;
     }
 
     public function scopeForDate(Builder $query, ?string $date): Builder
     {
-        if (! $date) {
-            return $query;
-        }
+        return $date ? $query->whereDate('start_at', $date) : $query;
+    }
 
-        return $query->whereDate('start_at', $date);
+    public function scopeForDateRange(Builder $query, string $from, string $to): Builder
+    {
+        return $query->whereBetween('start_at', [$from, $to]);
     }
 
     public function scopeForGroomer(Builder $query, ?int $groomerId): Builder
@@ -98,5 +97,10 @@ class Appointment extends Model
     public function scopeForService(Builder $query, ?string $serviceType): Builder
     {
         return $serviceType ? $query->where('service_type', $serviceType) : $query;
+    }
+
+    public function scopeAssignedTo(Builder $query, int $userId): Builder
+    {
+        return $query->where('assigned_to_user_id', $userId);
     }
 }

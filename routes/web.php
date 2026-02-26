@@ -62,6 +62,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('patient-pets', PetPatientController::class);
     });
 
+    Route::get('appointments/day', [AppointmentController::class, 'day'])->name('appointments.day');
+    Route::get('appointments/week', [AppointmentController::class, 'week'])->name('appointments.week');
     Route::resource('appointments', AppointmentController::class)->except(['show']);
 
     Route::prefix('groomer/dashboard')->name('groomer.dashboard.')->group(function () {
@@ -79,6 +81,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('stock/movements', [StockMovementController::class, 'store'])->name('stock.movements.store');
     Route::get('stock/alerts/low', [StockMovementController::class, 'lowStock'])->name('stock.low');
     Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
+    Route::post('appointments/{appointment}/start', [AppointmentController::class, 'start'])->name('appointments.start');
+    Route::post('appointments/{appointment}/finish', [AppointmentController::class, 'finish'])->name('appointments.finish');
     Route::post('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
 
 

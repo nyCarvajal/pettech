@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Appointment;
 use App\Models\GroomingSession;
+use App\Policies\AppointmentPolicy;
 use App\Policies\PetPolicy;
 use App\Policies\CustomerPolicy;
 use App\Models\Pet;
@@ -19,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        Appointment::class => AppointmentPolicy::class,
         GroomingSession::class => GroomingSessionPolicy::class,
         Customer::class => CustomerPolicy::class,
         Pet::class => PetPolicy::class,

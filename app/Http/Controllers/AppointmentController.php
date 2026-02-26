@@ -5,119 +5,157 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
 use App\Models\Appointment;
-use App\Models\Clinica;
 use App\Models\Client;
 use App\Models\Pet;
 use App\Models\User;
+use App\Services\Appointment\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-use Throwable;
 
 class AppointmentController extends Controller
 {
-    public function index(Request $request): View
+    public function __construct(private readonly AppointmentService $appointmentService)
     {
-        $this->ensureTenantDatabaseIsReady($request);
+    }
+
+    public function index(): RedirectResponse
+    {
+        return redirect()->route('appointments.day');
+    }
+
+    public function day(Request $request): View
+    {
+        $this->authorize('viewAny', Appointment::class);
 
         $date = $request->input('date', now()->toDateString());
-        $currentDate = Carbon::parse($date);
-        $startOfWeek = $currentDate->copy()->startOfWeek(Carbon::MONDAY);
-        $endOfWeek = $currentDate->copy()->endOfWeek(Carbon::SUNDAY);
+        $query = $this->filteredQuery($request);
 
-        $baseQuery = Appointment::query()
-            ->with(['customer', 'pet', 'assignedTo'])
-            ->forGroomer($request->integer('groomer_id'))
-            ->forStatus($request->input('status'))
-            ->forService($request->input('service_type'));
+        if ($request->user()?->hasRole('groomer')) {
+            $query->assignedTo((int) $request->user()->id);
+        }
 
-        $weekAppointments = (clone $baseQuery)
-            ->whereBetween('start_at', [$startOfWeek, $endOfWeek])
-            ->orderBy('start_at')
-            ->get()
-            ->groupBy(fn (Appointment $appointment) => $appointment->start_at->toDateString());
-
-        $dayAppointments = (clone $baseQuery)
+        $appointments = $query
             ->forDate($date)
             ->orderBy('start_at')
-            ->paginate(15)
+            ->paginate(20)
             ->withQueryString();
 
-        return view('appointments.index', [
-            'dayAppointments' => $dayAppointments,
-            'weekAppointments' => $weekAppointments,
-            'weekDays' => collect(range(0, 6))->map(fn ($i) => $startOfWeek->copy()->addDays($i)),
+        return view('appointments.day', [
+            'appointments' => $appointments,
             'date' => $date,
-            'filters' => $request->only(['groomer_id', 'status', 'service_type']),
-            'groomers' => User::query()->orderBy('name')->get(['id', 'name']),
-            'statuses' => Appointment::STATUSES,
-            'serviceTypes' => Appointment::SERVICE_TYPES,
+            ...$this->viewData($request),
         ]);
     }
 
-    public function create(Request $request): View
+    public function week(Request $request): View
     {
-        $this->ensureTenantDatabaseIsReady($request);
+        $this->authorize('viewAny', Appointment::class);
+
+        $date = Carbon::parse($request->input('date', now()->toDateString()));
+        $startOfWeek = $date->copy()->startOfWeek(Carbon::MONDAY);
+        $endOfWeek = $date->copy()->endOfWeek(Carbon::SUNDAY);
+
+        $query = $this->filteredQuery($request);
+
+        if ($request->user()?->hasRole('groomer')) {
+            $query->assignedTo((int) $request->user()->id);
+        }
+
+        $appointments = $query
+            ->forDateRange($startOfWeek->toDateTimeString(), $endOfWeek->toDateTimeString())
+            ->orderBy('start_at')
+            ->get()
+            ->groupBy(fn (Appointment $appointment) => $appointment->start_at?->toDateString());
+
+        return view('appointments.week', [
+            'weekAppointments' => $appointments,
+            'weekDays' => collect(range(0, 6))->map(fn (int $offset) => $startOfWeek->copy()->addDays($offset)),
+            'date' => $date->toDateString(),
+            ...$this->viewData($request),
+        ]);
+    }
+
+    public function create(): View
+    {
+        $this->authorize('create', Appointment::class);
 
         return view('appointments.create', $this->formData());
     }
 
     public function store(StoreAppointmentRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['status'] = $data['status'] ?? 'scheduled';
-        $data['code'] = $data['code'] ?? $this->generateCode();
-        $data['tenant_id'] = auth()->user()?->tenant_id;
-        $data['created_by'] = auth()->id();
-        $data['client_id'] = $data['customer_id'];
+        $this->appointmentService->create($request->validated(), $request->user());
 
-        Appointment::create($data);
-
-        return redirect()->route('appointments.index')->with('status', 'Cita creada correctamente.');
+        return redirect()->route('appointments.day')->with('status', 'Cita creada correctamente.');
     }
 
-    public function edit(Request $request, Appointment $appointment): View
+    public function edit(Appointment $appointment): View
     {
-        $this->ensureTenantDatabaseIsReady($request);
+        $this->authorize('update', $appointment);
 
         return view('appointments.edit', array_merge($this->formData(), compact('appointment')));
     }
 
     public function update(UpdateAppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
-        $data = $request->validated();
-        $data['client_id'] = $data['customer_id'];
+        $this->appointmentService->update($appointment, $request->validated(), $request->user());
 
-        $appointment->update($data);
-
-        return redirect()->route('appointments.index')->with('status', 'Cita actualizada correctamente.');
+        return redirect()->route('appointments.day')->with('status', 'Cita actualizada correctamente.');
     }
 
     public function destroy(Appointment $appointment): RedirectResponse
     {
+        $this->authorize('delete', $appointment);
+
         $appointment->delete();
 
-        return redirect()->route('appointments.index')->with('status', 'Cita eliminada.');
+        return redirect()->route('appointments.day')->with('status', 'Cita eliminada.');
     }
 
     public function confirm(Appointment $appointment): RedirectResponse
     {
-        $appointment->update(['status' => 'confirmed']);
+        $this->authorize('update', $appointment);
+        $this->appointmentService->transition($appointment, 'confirmed');
 
         return back()->with('status', 'Cita confirmada.');
     }
 
+    public function start(Appointment $appointment): RedirectResponse
+    {
+        $this->authorize('update', $appointment);
+        $this->appointmentService->transition($appointment, 'in_progress');
+
+        return back()->with('status', 'Cita iniciada.');
+    }
+
+    public function finish(Appointment $appointment): RedirectResponse
+    {
+        $this->authorize('update', $appointment);
+        $this->appointmentService->transition($appointment, 'done');
+
+        return back()->with('status', 'Cita finalizada.');
+    }
+
     public function cancel(Request $request, Appointment $appointment): RedirectResponse
     {
-        $appointment->update([
-            'status' => 'cancelled',
-            'notes' => trim(($appointment->notes ? $appointment->notes.PHP_EOL : '').'Cancelada: '.($request->input('reason', 'sin motivo especificado'))),
-        ]);
+        $this->authorize('update', $appointment);
+
+        $note = 'Cancelada: '.($request->string('reason')->trim()->value() ?: 'sin motivo especificado');
+        $this->appointmentService->transition($appointment, 'cancelled', $note);
 
         return back()->with('status', 'Cita cancelada.');
+    }
+
+    private function filteredQuery(Request $request)
+    {
+        return Appointment::query()
+            ->forTenant((int) $request->user()->tenant_id)
+            ->with(['customer', 'pet', 'assignedTo'])
+            ->forGroomer($request->integer('groomer_id'))
+            ->forStatus($request->input('status'))
+            ->forService($request->input('service_type'));
     }
 
     private function formData(): array
@@ -131,49 +169,13 @@ class AppointmentController extends Controller
         ];
     }
 
-    private function generateCode(): string
+    private function viewData(Request $request): array
     {
-        return 'APT-'.now()->format('Ymd-His').'-'.strtoupper(substr((string) str()->uuid(), 0, 6));
-    }
-
-    private function ensureTenantDatabaseIsReady(Request $request): void
-    {
-        $user = $request->user();
-        abort_unless($user, 403, 'Usuario no autenticado.');
-
-        $clinica = Clinica::resolveForUser($user);
-        $database = collect([
-            $clinica?->db,
-            $user->db ?? null,
-            data_get($user, 'tenant.tenancy_db_name'),
-            data_get($user, 'tenant.database'),
-            data_get($user, 'tenant.data.database'),
-            config('database.connections.tenant.database'),
-            config('database.connections.mysql.database'),
-        ])
-            ->filter(fn ($value) => is_string($value) && trim($value) !== '')
-            ->map(fn (string $value) => trim($value))
-            ->first();
-
-        if (! is_string($database)) {
-            return;
-        }
-
-        try {
-            Config::set('database.connections.tenant.database', $database);
-            DB::purge('tenant');
-            DB::reconnect('tenant');
-            DB::setDefaultConnection('tenant');
-
-            $activeDb = DB::connection('tenant')->getDatabaseName();
-            if (! $activeDb) {
-                Config::set('database.connections.tenant.database', config('database.connections.mysql.database'));
-                DB::purge('tenant');
-                DB::reconnect('tenant');
-                DB::setDefaultConnection('tenant');
-            }
-        } catch (Throwable $exception) {
-            report($exception);
-        }
+        return [
+            'filters' => $request->only(['groomer_id', 'status', 'service_type']),
+            'groomers' => User::query()->orderBy('name')->get(['id', 'name']),
+            'statuses' => Appointment::STATUSES,
+            'serviceTypes' => Appointment::SERVICE_TYPES,
+        ];
     }
 }
