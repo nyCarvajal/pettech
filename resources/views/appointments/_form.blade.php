@@ -81,5 +81,5 @@
 
 <div class="mt-6 flex gap-2">
     <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Guardar</button>
-    <a href="{{ route('appointments.index') }}" class="px-4 py-2 border rounded">Cancelar</a>
+    <a href="{{ route('appointments.day') }}" class="px-4 py-2 border rounded">Cancelar</a>
 </div>
