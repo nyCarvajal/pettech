@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use App\Models\GroomingSession;
+use App\Models\Pet;
 use App\Policies\GroomingSessionPolicy;
-// use Illuminate\Support\Facades\Gate;
+use App\Policies\PetPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -16,6 +17,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         GroomingSession::class => GroomingSessionPolicy::class,
+        Pet::class => PetPolicy::class,
     ];
 
     /**

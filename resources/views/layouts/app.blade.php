@@ -17,6 +17,7 @@
                 <a href="{{ route('roles.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🧩</span>Roles</a>
                 <a href="{{ route('permissions.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🔐</span>Permisos</a>
                 <a href="{{ route('clients.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🐾</span>Clientes</a>
+                <a href="{{ route('patient-pets.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🐶</span>Mascotas</a>
                 <a href="{{ route('appointments.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🗓️</span>Agenda</a>
                 <a href="{{ route('pos.invoices.create') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">💳</span>POS</a>
                 <a href="{{ route('dian.invoices.index') }}" class="sidebar__link"><span class="sidebar__icon" aria-hidden="true">🧾</span>DIAN estados</a>

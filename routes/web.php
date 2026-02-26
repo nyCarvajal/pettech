@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\PetController;
+use App\Http\Controllers\Patient\PetPatientController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\RoleController;
@@ -52,6 +53,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role_or_permission:Admin|manage clients')->group(function () {
         Route::resource('clients', ClientController::class);
         Route::resource('clients.pets', PetController::class)->shallow()->except(['index']);
+    });
+
+    Route::middleware('role_or_permission:Admin|manage clients')->group(function () {
+        Route::resource('patient-pets', PetPatientController::class);
     });
 
     Route::resource('appointments', AppointmentController::class)->except(['show']);
