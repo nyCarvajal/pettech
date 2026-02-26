@@ -1,13 +1,13 @@
 :root {
-  --bg: #060711;
-  --bg-elevated: #0b0d18;
-  --panel: #0f111f;
-  --text: #f9fafa;
-  --muted: #9fa0a6;
+  --bg: #ffffff;
+  --bg-elevated: #f8fbfa;
+  --panel: #ffffff;
+  --text: #1f2933;
+  --muted: #59616b;
   --primary: #2bae9f;
   --primary-dark: #12535b;
-  --border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --border: rgba(57, 66, 74, 0.18);
+  --shadow: 0 12px 30px rgba(31, 41, 51, 0.08);
   --radius: 14px;
   --transition: 160ms ease;
 }
@@ -35,11 +35,11 @@ a {
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
   background: radial-gradient(circle at 20% 20%, rgba(43, 174, 159, 0.12), transparent 28%),
-    radial-gradient(circle at 80% 0%, rgba(18, 83, 91, 0.18), transparent 22%), var(--bg);
+    radial-gradient(circle at 80% 0%, rgba(18, 83, 91, 0.14), transparent 22%), var(--bg);
 }
 
 .sidebar {
-  background: linear-gradient(180deg, var(--panel), #0b101b 60%);
+  background: linear-gradient(180deg, #ffffff, #eef2f1 60%);
   border-right: 1px solid var(--border);
   padding: 24px 20px;
   position: sticky;
@@ -176,7 +176,7 @@ a {
   margin-top: auto;
   padding: 14px 12px;
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(18, 83, 91, 0.03);
   border: 1px solid var(--border);
   display: flex;
   gap: 12px;
@@ -246,7 +246,7 @@ a {
 
 .search input {
   padding: 10px 12px 10px 38px;
-  background: rgba(255, 255, 255, 0.04);
+  background: #ffffff;
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text);
@@ -277,7 +277,7 @@ a {
   padding: 26px;
   display: grid;
   gap: 18px;
-  background: linear-gradient(180deg, rgba(18, 83, 91, 0.1), transparent 40%), var(--bg);
+  background: linear-gradient(180deg, rgba(18, 83, 91, 0.06), transparent 40%), var(--bg);
 }
 
 .grid {
@@ -336,8 +336,8 @@ a {
 }
 
 .chip-muted {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(57, 66, 74, 0.18);
+  background: rgba(57, 66, 74, 0.06);
   color: var(--muted);
 }
 
@@ -350,7 +350,7 @@ a {
   border-radius: 12px;
   border: 1px solid transparent;
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: #ffffff;
   cursor: pointer;
   transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
 }
@@ -372,7 +372,7 @@ a {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.04);
+  background: #f5f7f8;
   border-color: var(--border);
   color: var(--text);
 }
@@ -389,12 +389,12 @@ a {
 
 .btn-ghost:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(57, 66, 74, 0.06);
 }
 
 .form-control {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
+  background: #ffffff;
   border: 1px solid var(--border);
   color: var(--text);
   padding: 12px 14px;
@@ -544,7 +544,7 @@ a {
 
 .input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.04);
+  background: #ffffff;
   border: 1px solid var(--border);
   color: var(--text);
   padding: 12px;
@@ -573,13 +573,13 @@ a {
 }
 
 .btn--secondary {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(57, 66, 74, 0.18);
   color: var(--text);
 }
 
 .btn--ghost {
   border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(57, 66, 74, 0.04);
   color: var(--muted);
 }
 
@@ -595,8 +595,8 @@ a {
 }
 
 .badge--ghost {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(57, 66, 74, 0.06);
+  border-color: rgba(57, 66, 74, 0.12);
   color: var(--muted);
 }
 
@@ -657,7 +657,7 @@ a {
 .tabs__list {
   display: inline-flex;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #f5f7f8;
   padding: 6px;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -735,8 +735,8 @@ a {
     min-height: 100vh;
     background: radial-gradient(circle at 20% 20%, rgba(43, 174, 159, 0.12), transparent 35%),
                 radial-gradient(circle at 80% 0%, rgba(18, 83, 91, 0.2), transparent 40%),
-                #060711;
-    color: #F9FAFA;
+                #ffffff;
+    color: #1f2933;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -803,7 +803,7 @@ a {
 .auth-brand__logo {
     width: 200px;
     max-width: 100%;
-    filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 10px 30px rgba(18, 83, 91, 0.2));
 }
 
 .auth-brand__text h1 {
@@ -814,14 +814,14 @@ a {
 
 .auth-brand__text p {
     margin: 0.25rem 0 0;
-    color: #9FA0A6;
+    color: #59616b;
 }
 
 .auth-card {
-    background: rgba(17, 18, 30, 0.82);
+    background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(159, 160, 166, 0.18);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(57, 66, 74, 0.16);
+    box-shadow: 0 20px 55px rgba(31, 41, 51, 0.14);
     border-radius: 18px;
     padding: 2rem;
 }
@@ -839,7 +839,7 @@ a {
 
 .auth-card__header p {
     margin: 0;
-    color: #9FA0A6;
+    color: #59616b;
 }
 
 .auth-card .form__field {
