@@ -10,32 +10,35 @@
             @endforeach
         </select>
     </div>
-    <div><label class="block text-sm">Nacimiento</label><input type="date" name="birthdate" value="{{ old('birthdate', isset($pet)?optional($pet->birthdate)->format('Y-m-d'):'') }}" class="mt-1 w-full rounded border-gray-300"></div>
+    <div><label class="block text-sm">Nacimiento</label><input type="date" name="birthdate" value="{{ old('birthdate', isset($pet) ? optional($pet->birthdate)->format('Y-m-d') : '') }}" class="mt-1 w-full rounded border-gray-300"></div>
     <div><label class="block text-sm">Color</label><input name="color" value="{{ old('color', $pet->color ?? '') }}" class="mt-1 w-full rounded border-gray-300"></div>
 </div>
+
 <div class="mt-4"><label class="block text-sm">Notas</label><textarea name="notes" rows="3" class="mt-1 w-full rounded border-gray-300">{{ old('notes', $pet->notes ?? '') }}</textarea></div>
 
 <div class="mt-6 rounded border p-4">
-    <h3 class="font-semibold">Tutores asociados</h3>
-    <input type="text" id="customerFilter" placeholder="Buscar tutor por nombre o teléfono" class="mt-2 w-full rounded border-gray-300">
-    <div id="customerList" class="mt-3 space-y-2 max-h-64 overflow-y-auto">
-        @php
-            $selected = collect(old('customer_links', isset($pet) ? $pet->customers->map(fn($c) => ['customer_id' => $c->id, 'relationship' => $c->pivot->relationship, 'is_primary' => (bool) $c->pivot->is_primary])->values()->all() : []))->keyBy('customer_id');
-        @endphp
-        @foreach($customers as $customer)
-            @php $row = $selected[$customer->id] ?? null; @endphp
-            <div class="customer-item rounded border p-2" data-search="{{ strtolower($customer->full_name.' '.$customer->phone) }}">
+    <h3 class="font-semibold">Tutores (clientes) asociados</h3>
+    <input type="text" id="tutorFilter" placeholder="Buscar cliente/tutor por nombre o teléfono" class="mt-2 w-full rounded border-gray-300">
+
+    @php
+        $selected = collect(old('tutor_links', isset($pet) ? $pet->tutors->map(fn($c) => ['client_id' => $c->id, 'relationship' => $c->pivot->relationship, 'is_primary' => (bool) $c->pivot->is_primary])->values()->all() : []))->keyBy('client_id');
+    @endphp
+
+    <div class="mt-3 space-y-2 max-h-64 overflow-y-auto">
+        @foreach($clients as $client)
+            @php $row = $selected[$client->id] ?? null; @endphp
+            <div class="tutor-item rounded border p-2" data-search="{{ strtolower($client->name.' '.$client->phone) }}">
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" name="customer_links[{{ $loop->index }}][customer_id]" value="{{ $customer->id }}" @checked($row !== null)>
-                    <span>{{ $customer->full_name }} <small class="text-gray-500">{{ $customer->phone }}</small></span>
+                    <input type="checkbox" name="tutor_links[{{ $loop->index }}][client_id]" value="{{ $client->id }}" @checked($row !== null)>
+                    <span>{{ $client->name }} <small class="text-gray-500">{{ $client->phone }}</small></span>
                 </label>
                 <div class="mt-2 grid grid-cols-2 gap-2 pl-6">
-                    <select name="customer_links[{{ $loop->index }}][relationship]" class="rounded border-gray-300 text-sm">
+                    <select name="tutor_links[{{ $loop->index }}][relationship]" class="rounded border-gray-300 text-sm">
                         <option value="owner" @selected(($row['relationship'] ?? 'owner') === 'owner')>Titular</option>
                         <option value="other" @selected(($row['relationship'] ?? '') === 'other')>Otro</option>
                     </select>
                     <label class="flex items-center gap-1 text-sm">
-                        <input type="checkbox" name="customer_links[{{ $loop->index }}][is_primary]" value="1" @checked((bool)($row['is_primary'] ?? false))>
+                        <input type="checkbox" name="tutor_links[{{ $loop->index }}][is_primary]" value="1" @checked((bool) ($row['is_primary'] ?? false))>
                         Tutor principal
                     </label>
                 </div>
@@ -47,10 +50,10 @@
 <div class="mt-4 flex gap-2"><button class="rounded bg-blue-600 px-4 py-2 text-white">Guardar</button><a href="{{ route('patient-pets.index') }}" class="rounded border px-4 py-2">Cancelar</a></div>
 
 <script>
-    document.getElementById('customerFilter')?.addEventListener('input', function (e) {
-        const term = e.target.value.toLowerCase();
-        document.querySelectorAll('.customer-item').forEach((item) => {
-            item.style.display = item.dataset.search.includes(term) ? 'block' : 'none';
-        });
+document.getElementById('tutorFilter')?.addEventListener('input', function (e) {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('.tutor-item').forEach((item) => {
+        item.style.display = item.dataset.search.includes(term) ? 'block' : 'none';
     });
+});
 </script>

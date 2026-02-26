@@ -14,7 +14,7 @@
             <div class="flex items-center justify-between border-b p-3">
                 <div>
                     <p class="font-medium">{{ $pet->name }} <span class="text-sm text-gray-500">({{ $pet->species }})</span></p>
-                    <p class="text-sm text-gray-500">Tutores: {{ $pet->customers->pluck('full_name')->join(', ') }}</p>
+                    <p class="text-sm text-gray-500">Tutores: {{ $pet->tutors->pluck('name')->join(', ') }}</p>
                 </div>
                 <a class="text-blue-600" href="{{ route('patient-pets.show', $pet) }}">Detalle</a>
             </div>

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Client;
 use App\Models\Pet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

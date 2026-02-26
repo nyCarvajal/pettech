@@ -13,8 +13,8 @@
     <p><strong>Sexo:</strong> {{ $pet->sex }}</p>
     <p><strong>Tutores:</strong></p>
     <ul class="list-disc pl-5">
-        @foreach($pet->customers as $customer)
-            <li>{{ $customer->full_name }} ({{ $customer->pivot->relationship }}) @if($customer->pivot->is_primary) - Principal @endif</li>
+        @foreach($pet->tutors as $tutor)
+            <li>{{ $tutor->name }} ({{ $tutor->pivot->relationship }}) @if($tutor->pivot->is_primary) - Principal @endif</li>
         @endforeach
     </ul>
 </div>
