@@ -6,6 +6,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ElectronicInvoiceController;
 use App\Http\Controllers\Groomer\GroomerDashboardController;
 use App\Http\Controllers\TenantDianConfigController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\PetController;
+use App\Http\Controllers\Patient\PetPatientController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\RoleController;
@@ -52,6 +54,12 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role_or_permission:Admin|manage clients')->group(function () {
         Route::resource('clients', ClientController::class);
         Route::resource('clients.pets', PetController::class)->shallow()->except(['index']);
+    });
+
+    Route::middleware('role_or_permission:Admin|manage clients')->group(function () {
+        Route::get('customers/search', [CustomerController::class, 'search'])->name('customers.search');
+        Route::resource('customers', CustomerController::class);
+        Route::resource('patient-pets', PetPatientController::class);
     });
 
     Route::resource('appointments', AppointmentController::class)->except(['show']);
