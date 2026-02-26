@@ -9,6 +9,8 @@ class AuditLog extends Model
 {
     use HasFactory;
 
+    protected $connection = 'tenant';
+
     public $timestamps = false;
 
     protected $fillable = [
