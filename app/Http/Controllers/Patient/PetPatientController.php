@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Patient;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Patient\StorePatientPetRequest;
 use App\Http\Requests\Patient\UpdatePatientPetRequest;
-use App\Models\Customer;
+use App\Models\Client;
 use App\Models\Pet;
 use App\Services\Patient\PatientPetService;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +25,7 @@ class PetPatientController extends Controller
 
         $pets = Pet::query()
             ->where('tenant_id', $request->user()->tenant_id)
-            ->with('customers')
+            ->with('tutors')
             ->search($search)
             ->orderBy('name')
             ->paginate(12)
@@ -36,13 +36,14 @@ class PetPatientController extends Controller
 
     public function create(Request $request): View
     {
-        $customers = Customer::query()
+        $clients = Client::query()
             ->where('tenant_id', $request->user()->tenant_id)
-            ->orderBy('last_name')
+            ->search($request->string('tutor_search')->toString())
+            ->orderBy('name')
             ->limit(100)
             ->get();
 
-        return view('patient-pets.create', compact('customers'));
+        return view('patient-pets.create', compact('clients'));
     }
 
     public function store(StorePatientPetRequest $request): RedirectResponse
@@ -54,21 +55,22 @@ class PetPatientController extends Controller
 
     public function show(Pet $patient_pet): View
     {
-        $patient_pet->load('customers');
+        $patient_pet->load('tutors');
 
         return view('patient-pets.show', ['pet' => $patient_pet]);
     }
 
     public function edit(Request $request, Pet $patient_pet): View
     {
-        $patient_pet->load('customers');
-        $customers = Customer::query()
+        $patient_pet->load('tutors');
+
+        $clients = Client::query()
             ->where('tenant_id', $request->user()->tenant_id)
-            ->orderBy('last_name')
+            ->orderBy('name')
             ->limit(100)
             ->get();
 
-        return view('patient-pets.edit', ['pet' => $patient_pet, 'customers' => $customers]);
+        return view('patient-pets.edit', ['pet' => $patient_pet, 'clients' => $clients]);
     }
 
     public function update(UpdatePatientPetRequest $request, Pet $patient_pet): RedirectResponse

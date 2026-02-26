@@ -22,10 +22,10 @@ class StorePatientPetRequest extends FormRequest
             'birthdate' => ['nullable', 'date'],
             'color' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string'],
-            'customer_links' => ['array'],
-            'customer_links.*.customer_id' => ['required', 'integer', 'exists:customers,id'],
-            'customer_links.*.relationship' => ['required', Rule::in(['owner', 'other'])],
-            'customer_links.*.is_primary' => ['nullable', 'boolean'],
+            'tutor_links' => ['array'],
+            'tutor_links.*.client_id' => ['required', 'integer', 'exists:clients,id'],
+            'tutor_links.*.relationship' => ['required', Rule::in(['owner', 'other'])],
+            'tutor_links.*.is_primary' => ['nullable', 'boolean'],
         ];
     }
 }

@@ -11,17 +11,16 @@ class PatientPetService
     public function create(array $data, User $user): Pet
     {
         return DB::transaction(function () use ($data, $user) {
-            $links = $data['customer_links'] ?? [];
-            unset($data['customer_links']);
+            $links = $data['tutor_links'] ?? [];
+            unset($data['tutor_links']);
 
             $pet = Pet::create(array_merge($data, [
                 'tenant_id' => $user->tenant_id,
                 'created_by' => $user->id,
-                'client_id' => null,
                 'active' => true,
             ]));
 
-            $this->syncCustomers($pet, $links, $user);
+            $this->syncTutors($pet, $links, $user);
 
             return $pet;
         });
@@ -30,28 +29,29 @@ class PatientPetService
     public function update(Pet $pet, array $data, User $user): Pet
     {
         return DB::transaction(function () use ($pet, $data, $user) {
-            $links = $data['customer_links'] ?? [];
-            unset($data['customer_links']);
+            $links = $data['tutor_links'] ?? [];
+            unset($data['tutor_links']);
 
             $pet->update($data);
-            $this->syncCustomers($pet, $links, $user);
+            $this->syncTutors($pet, $links, $user);
 
             return $pet;
         });
     }
 
-    private function syncCustomers(Pet $pet, array $links, User $user): void
+    private function syncTutors(Pet $pet, array $links, User $user): void
     {
         $syncData = collect($links)
+            ->filter(fn (array $link) => isset($link['client_id']))
             ->mapWithKeys(fn (array $link) => [
-                (int) $link['customer_id'] => [
+                (int) $link['client_id'] => [
                     'tenant_id' => $user->tenant_id,
-                    'relationship' => $link['relationship'],
+                    'relationship' => $link['relationship'] ?? 'owner',
                     'is_primary' => (bool) ($link['is_primary'] ?? false),
                     'created_by' => $user->id,
                 ],
             ])->all();
 
-        $pet->customers()->sync($syncData);
+        $pet->tutors()->sync($syncData);
     }
 }

@@ -57,8 +57,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware('role_or_permission:Admin|manage clients')->group(function () {
-        Route::get('customers/search', [CustomerController::class, 'search'])->name('customers.search');
-        Route::resource('customers', CustomerController::class);
         Route::resource('patient-pets', PetPatientController::class);
     });
 

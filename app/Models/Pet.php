@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -52,9 +52,9 @@ class Pet extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function customers(): BelongsToMany
+    public function tutors(): BelongsToMany
     {
-        return $this->belongsToMany(Customer::class, 'pet_customer')
+        return $this->belongsToMany(Client::class, 'client_pet')
             ->withPivot(['tenant_id', 'relationship', 'is_primary', 'created_by'])
             ->withTimestamps();
     }
@@ -74,10 +74,10 @@ class Pet extends Model
             $builder->where('name', 'like', "%{$term}%")
                 ->orWhere('species', 'like', "%{$term}%")
                 ->orWhere('breed', 'like', "%{$term}%")
-                ->orWhereHas('customers', function (Builder $customers) use ($term) {
-                    $customers->where('first_name', 'like', "%{$term}%")
-                        ->orWhere('last_name', 'like', "%{$term}%")
-                        ->orWhere('phone', 'like', "%{$term}%");
+                ->orWhereHas('tutors', function (Builder $tutors) use ($term) {
+                    $tutors->where('name', 'like', "%{$term}%")
+                        ->orWhere('phone', 'like', "%{$term}%")
+                        ->orWhere('document', 'like', "%{$term}%");
                 });
         });
     }
